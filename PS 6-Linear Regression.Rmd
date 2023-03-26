@@ -1,0 +1,170 @@
+---
+title: 'PS 6: Linear Regression'
+author: "Pooja Sadarangani"
+date: "2022-11-19"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE, tidy.opts=list(width.cutoff=150), tidy=TRUE )
+```
+
+# Collaborator: Pranali Oza
+
+#1 Housing Values in Boston
+
+## 1. Describe the data and variables that are part of the Boston dataset. Are there any missings? Any unreasonable values? Clean data as necessary.
+
+```{r}
+boston <- read.delim("boston.csv.bz2")
+
+dim(boston)
+names(boston)
+head(boston)
+
+#any(is.na("crim") | is.na("zn") | is.na("indus") | is.na("chas") | is.na("nox") | is.na("rm") | is.na("age") | is.na("dis") | is.na("rad") | is.na("tax") | is.na("ptratio") | is.na("black") | is.na("lstat") | is.na("medv"))
+
+print("There are no missing values in the dataset")
+```
+
+## 2. Use the following predictors: rm, lstat, and add an additional predictors of your choice, something that you consider might be interesting to analyze. For each predictor do the following:
+
+### a. Make a scatterplot that displays how medv is related to that predictor and add regression line to that plot. Comment the result: do you see any relationship? Anything else interesting you see?
+
+#### Scatterplot for predictor = rm:
+```{r}
+library(ggplot2)
+ggplot(boston, aes(x=rm,y=medv)) + geom_point() + geom_smooth(method="lm")
+```
+
+#### Ans. The variable medv is positively and strongly correlated to the variable rm. That means that the value of medv increases with the increase in value of rm.
+
+#### Scatterplot for predictor = lstat:
+
+```{r}
+library(ggplot2)
+ggplot(boston, aes(x=lstat,y=medv)) + geom_point() + geom_smooth(method="lm")
+```
+
+#### Ans. The variable medv is negatively and strongly correlated to the variable lstat. That means that the value medv increases with the decrease in value of lstat.
+
+#### Scatterplot for predictor = crim:
+
+```{r}
+library(ggplot2)
+ggplot(boston, aes(x=crim,y=medv)) + geom_point() + geom_smooth(method="lm")
+```
+
+#### Ans. The variable medv is negatively correlated to the variable crim. That means that the value medv increases with the decrease in value of crim.
+
+### b. Fit a simple linear regression model to predict the response. Show the regression output.
+
+#### Model for predictor = rm:
+
+```{r}
+model_rm <- lm(medv~rm, data=boston)
+summary(model_rm)
+```
+
+#### Model for predictor = lstat:
+
+```{r}
+model_lstat <- lm(medv~lstat, data=boston)
+summary(model_lstat)
+```
+
+#### Model for predictor = crim:
+
+```{r}
+model_crim <- lm(medv~crim, data=boston)
+summary(model_crim)
+```
+
+### c. Interpret the slope (the effect of your explanatory variable). Is it statistically significant?
+
+#### For predictor = rm
+#### Ans: The slope is 9.102. This indicates that the two variables are positively correlated which means medv increases as rm increases. It is statistically significant as the p-value is very small (less than zero) i.e 2e-16.
+
+#### For predictor = lstat
+#### Ans: The slope is -0.95. This indicates that the two variables are negatively correlated which means medv increases as lstat decreases. It is statistically significant as the p-value is very small (less than zero) i.e 2e-16.
+
+#### For predictor = crim
+#### Ans: The slope is -0.4152. This indicates that the two variables are negatively correlated which means medv increases as crim decreases. It is statistically significant as the p-value is very small (less than zero) i.e 2e-16.
+
+### d. Explain why do you think you see (or don’t see) the relationship on the figure/- model. Try to think about the possible social processes that make certain neighborhoods more or less expensive. For instance, why do you see that neighborhoods with more lower status people have lower house prices.
+
+#### For predictor = rm (average number of rooms per dwelling)
+#### As the number of rooms increases, the house price should also increase as it means that the house is bigger and can accomodate more people. With this logic, the relationship determined between medv and rm above seems correct. 
+
+#### For predictor = lstat (lower status of the population (percent))
+#### The neighbourhoods with more lower status people have lower house prices because people will buy the house only if they can afford it. This suggests that houses prices in those regions must be affordable. With this logic, the relationship determined between medv and lstat above seems correct. 
+
+#### For predictor = crim (per capita crime rate by neighborhood)
+#### People will tend to live in areas which have a lower crime rate. Thus, the houses in these areas will be pricey due to the high demand. With this logic, the relationship determined between medv and crim above seems correct. 
+
+## 3. Comment the results: are plots where you clearly can see a relationship related to models where the effect is statistically significant?
+
+## Ans. Yes, the plots are related to the models. We are able to deduct the same relationship between the predictor and the response outcome from both.
+
+## 4. If you do this correctly, you find t-value for rm to be 21.72. How is the t-value computed? What is it testing–what is H0 here? What would be the critical t-value here? Enough of simple regression. Now let’s move to multiple regression.
+
+```{r}
+qt(0.975, df = 504)
+qt
+```
+
+
+## The t-value for the coefficient rm is computed by dividing the estimate of the parameter rm by the std. error of the parameter rm. The t-value is testing the H0 (null hypothesis), which in this case is that the outcome variable and the predictor are not correlated. Using the qt function, we get the critical t value as 1.964682.
+
+
+## 5. Fit a multiple regression model to predict the response using all the predictors. Describe your results. For which predictors can we reject the null hypothesis H0 :Bj =0
+
+```{r}
+model_all_1 <- lm(medv ~ rm+lstat+crim+indus+zn+chas+nox+age+dis+rad+tax+ptratio+black, data=boston)
+summary(model_all_1)
+```
+
+## Ans. According to the results, all parameters except 'age' and 'indus' are statistically significant. Thus,we can reject the null hypothesis for the following predictors: crim, zn, chas, nox, rm, dis, rad, tax, ptratio, black, and lstat.
+
+
+## 6. Interpret the results for rm, lstat and indus. Are the results statistically significant? Here just statistical interpretation is enough.
+
+## Ans. According to the above results, the parameters rm and lstat are statistically significant while the parameter indus is not statistically significant. We can tell this by looking at the p-values. 
+
+## 7. How do your results from 2 compare to your results from 5? Compare the results for those predictors you used for simple regression above. Explain why do the values differ. Do they still tell the same basic story?
+
+## The results tell the same basic story; medv is positively correlated to rm and negatively correlated to lstat and crim. 
+## The results from 2 differ with the results from 5 for the parameter 'crim' as the p value is greater than what it was before. 
+
+# 2 Interpret Regression Results
+
+## 1. Do neighborhoods with more evictions see more or less 311 calls? By how much?
+
+## Ans. The number of 311 calls is positively correlated with the number of evictions.Thus,  neighborhoods with more evictions see more number of 311 calls. The number of 311 calls increases by 0.048 with every unit increase in the number of evictions.
+
+## 2. Is the figure statistically significant (at 5% level)?
+
+## Ans. No, the figure is not statistically significant at 5% level but instead, it is statistically significant at 1% level as p<.01
+
+## 3. How is poverty rate associated with 311 calls? How much more (or less) calls there are in neighborhoods with 10 pct point more poverty?
+
+## Ans. The number of 311 calls are negatively correlated to poverty rate. Thus,higher the poverty rate, lesser the 311 calls. From the coefficient that we get from the table i.e -0.14, we can tell that every pct point increase in poverty rate causes decrease in number of 311 calls by 0.14. Thus, when poverty increases by 10 pct point, the number of 311 calls decreases by 1.4.
+
+## 4. What can you tell about association of race (white) and calls?
+
+## Ans. The number of 311 calls in negatively correlated to the % of whites. Thus, more the number of whites in the neighborhood, lesser the 311 calls. 
+
+## 5. Is older median age associated with more or less 311 calls? At which level is this statistically significant?
+
+## Ans. Older median age is associated with more calls as they are positively correlated which is clear from the positive coefficient i.e 0.0067 . This is statistically significant at level 1% as p<.01.
+
+## 6. The value for housing density is -0.13. What does thin number mean?
+
+## Ans. The value -0.13 is the regression coefficient (coefficient B0 in the regression line function y= B0 + B1x). It denotes that the number of calls to 311 is negatively correlated to the housing density.
+
+## 7. The omitted category for city is Austin, TX. Are there more or fewer calls in similar neighborhoods in Philadelphia, compared to Austin? By how much?
+
+## Ans. The number of 311 calls in Austin is more than the number of 311 calls in Philadelphia by 0.56.
+
